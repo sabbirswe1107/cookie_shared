@@ -14,6 +14,8 @@ export default function PortalPage() {
   // Portal State
   const [services, setServices] = useState<any[]>([]);
   const [extStatus, setExtStatus] = useState(false); // mock extension status
+  const [launching, setLaunching] = useState(false);
+  const [launchMsg, setLaunchMsg] = useState("");
   
   // Drawer State
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -32,18 +34,58 @@ export default function PortalPage() {
   useEffect(() => {
     if (user) {
       // Mock loading services
-      api("/api/v1/services")
+      api("/api/v1/user/services")
         .then(res => res.json())
-        .then(data => setServices(data))
-        .catch(console.error);
+        .then(data => {
+          if (Array.isArray(data)) {
+            setServices(data);
+          } else {
+            console.error("Failed to load services:", data);
+            setServices([]);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          setServices([]);
+        });
 
-      // Check extension
-      const checkExt = setTimeout(() => {
-        setExtStatus(document.documentElement.hasAttribute("data-scs-ext-version"));
+      // Check extension repeatedly for a few seconds just in case it loads late
+      let checks = 0;
+      const checkExt = setInterval(() => {
+        if (document.documentElement.hasAttribute("data-cookie-extension")) {
+          setExtStatus(true);
+          clearInterval(checkExt);
+        }
+        window.postMessage({ type: "PING" }, "*");
+        if (++checks > 10) clearInterval(checkExt); // Stop after 5 seconds
       }, 500);
-      return () => clearTimeout(checkExt);
+      return () => clearInterval(checkExt);
     }
   }, [user]);
+
+  useEffect(() => {
+    const handleMsg = (e: MessageEvent) => {
+      if (e.data?.type === "INJECT_PROGRESS") {
+        if (e.data.status === "error") {
+          setLaunchMsg(`Error: ${e.data.message || "Injection failed"}`);
+          setLaunching(false);
+        } else if (e.data.status === "done") {
+          setLaunchMsg("Injection complete! Opening tab...");
+          setLaunching(false);
+        } else {
+          setLaunchMsg(`Status: ${e.data.status}...`);
+        }
+      }
+      if (e.data?.type === "INJECT_RESPONSE") {
+        if (!e.data.success) {
+          setLaunchMsg(`Error: ${e.data.error || "Injection failed"}`);
+          setLaunching(false);
+        }
+      }
+    };
+    window.addEventListener("message", handleMsg);
+    return () => window.removeEventListener("message", handleMsg);
+  }, []);
 
   if (loading) {
     return <div style={{ padding: 40, textAlign: "center" }}>Loading Portal...</div>;
@@ -102,9 +144,9 @@ export default function PortalPage() {
       {!extStatus && (
         <div className="banner banner-warning">
           <span>Install the Secure Cookie Share Chrome Extension to access services.</span>
-          <button className="btn btn-sm btn-primary" onClick={() => alert("Load the extension from the /extension folder in Chrome Developer Mode.")}>
+          <a href="/user-extension.zip" download className="btn btn-sm btn-primary" style={{ textDecoration: 'none' }}>
             Install Extension
-          </button>
+          </a>
         </div>
       )}
 
@@ -112,7 +154,7 @@ export default function PortalPage() {
         <h2 className="page-title">Your Services</h2>
         <p className="page-sub">Click Access to choose a server and launch a premium session.</p>
         <div className="services-grid">
-          {services.map((svc: any) => (
+          {Array.isArray(services) && services.map((svc: any) => (
             <div key={svc.id} className="service-card">
               <h3>{svc.name}</h3>
               <p>{svc.target_url}</p>
@@ -137,7 +179,60 @@ export default function PortalPage() {
               <button onClick={() => setDrawerOpen(false)} className="btn-icon">&times;</button>
             </div>
             <div className="drawer-body">
-              <p>Server list would appear here (React UI port in progress...)</p>
+              {launchMsg && <div className={`banner ${launchMsg.includes('Error') ? 'banner-error' : 'banner-success'}`} style={{ marginBottom: 16 }}>{launchMsg}</div>}
+              {(!selectedService?.servers || selectedService.servers.length === 0) ? (
+                <p>No active servers for this service.</p>
+              ) : (
+                <div className="server-list">
+                  {selectedService.servers.map((srv: any) => (
+                    <div key={srv.id} className="server-item" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <h4 style={{ margin: '0 0 4px 0' }}>{srv.label}</h4>
+                        <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
+                          Status: {srv.has_active_session ? <span style={{color: '#10b981'}}>Available</span> : <span style={{color: '#f59e0b'}}>Offline</span>}
+                        </p>
+                      </div>
+                      <button 
+                        className="btn btn-primary btn-sm" 
+                        disabled={!srv.has_active_session || launching}
+                        onClick={async () => {
+                          setLaunching(true);
+                          setLaunchMsg("");
+                          try {
+                            const token = localStorage.getItem("portal_access_token") || "";
+                            
+                            window.postMessage({
+                              type: "INJECT_SESSION",
+                              serviceId: selectedService.id,
+                              serverId: srv.id,
+                              accessToken: token,
+                              backendUrl: "http://localhost:8000",
+                              targetUrl: selectedService.target_url
+                            }, "*");
+                            
+                            // Do not show "Session injection initiated", just wait for response
+                            // Add a timeout fallback in case the extension context is invalidated
+                            setTimeout(() => {
+                              setLaunching(current => {
+                                if (current) {
+                                  setLaunchMsg("Error: Extension did not respond. Try refreshing the page.");
+                                  return false;
+                                }
+                                return current;
+                              });
+                            }, 4000);
+                          } catch (e: any) {
+                            setLaunchMsg(`Error: ${e.message}`);
+                            setLaunching(false);
+                          }
+                        }}
+                      >
+                        {launching ? "Launching..." : "Launch"}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

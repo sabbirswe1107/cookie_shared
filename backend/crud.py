@@ -28,6 +28,15 @@ def list_users(db: Session) -> List[models.User]:
     return db.query(models.User).order_by(models.User.created_at.desc()).all()
 
 
+def update_user_password(db: Session, user_id: str, new_password_hash: str) -> bool:
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        return False
+    user.password_hash = new_password_hash
+    db.commit()
+    return True
+
+
 def create_subscription(
     db: Session, user_id: str, plan: str = "premium", expires_at: Optional[datetime] = None
 ) -> models.Subscription:

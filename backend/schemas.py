@@ -178,6 +178,10 @@ class UserCreate(BaseModel):
     role: str = Field("user", pattern="^(admin|user)$")
 
 
+class UserPasswordUpdate(BaseModel):
+    new_password: str = Field(..., min_length=6)
+
+
 class SubscriptionCreate(BaseModel):
     plan: str = "premium"
     expires_at: Optional[datetime] = None

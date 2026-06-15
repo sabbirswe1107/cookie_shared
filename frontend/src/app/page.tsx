@@ -61,9 +61,8 @@ export default function Home() {
           </Link>
           <div className="nav-links">
             <Link href="/portal" className="nav-link">User Portal</Link>
-            <Link href="/admin" className="nav-link">Admin Panel</Link>
             <a href="#how-it-works" className="nav-link">How It Works</a>
-            <a href="#inspector" className="nav-link">Inspect Session</a>
+            <a href="#pricing" className="nav-link">Pricing</a>
           </div>
         </div>
       </nav>
@@ -88,7 +87,7 @@ export default function Home() {
             </p>
 
             <div className="hero-actions">
-              <a href="#inspector" className="btn-primary">Inspect a Session</a>
+              <a href="#pricing" className="btn-primary">View Pricing</a>
               <a href="#how-it-works" className="btn-ghost">How It Works</a>
             </div>
 
@@ -161,6 +160,53 @@ export default function Home() {
           </div>
         </section>
 
+        <section className="section pricing-section" id="pricing">
+          <div className="section-inner">
+            <div className="section-label">Pricing</div>
+            <h2 className="section-title">Simple, transparent pricing</h2>
+            <p className="section-sub">Choose the perfect plan for your secure sharing needs.</p>
+
+            <div className="pricing-grid">
+              <div className="pricing-card">
+                <h3>Basic</h3>
+                <div className="price"><span>$</span>9<span>/mo</span></div>
+                <p>Perfect for individuals needing secure sharing.</p>
+                <ul className="pricing-features">
+                  <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"></polyline></svg> 100 Sessions / month</li>
+                  <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"></polyline></svg> 24-hour expiry limit</li>
+                  <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Community Support</li>
+                </ul>
+                <a href="/portal" className="btn-ghost btn-full">Get Started</a>
+              </div>
+              
+              <div className="pricing-card popular">
+                <div className="popular-badge">Most Popular</div>
+                <h3>Pro</h3>
+                <div className="price"><span>$</span>29<span>/mo</span></div>
+                <p>For teams that need advanced control and limits.</p>
+                <ul className="pricing-features">
+                  <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Unlimited Sessions</li>
+                  <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Custom expiry (up to 7 days)</li>
+                  <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Priority Email Support</li>
+                </ul>
+                <a href="/portal" className="btn-primary btn-full">Start Free Trial</a>
+              </div>
+
+              <div className="pricing-card">
+                <h3>Enterprise</h3>
+                <div className="price"><span>$</span>99<span>/mo</span></div>
+                <p>Dedicated infrastructure and premium security.</p>
+                <ul className="pricing-features">
+                  <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Dedicated Server Instances</li>
+                  <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Unlimited Expiry Times</li>
+                  <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"></polyline></svg> 24/7 Phone Support</li>
+                </ul>
+                <a href="/portal" className="btn-ghost btn-full">Contact Sales</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="security-section">
           <div className="section-inner">
             <div className="section-label">Security</div>
@@ -198,65 +244,6 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="section inspector-section" id="inspector">
-          <div className="section-inner">
-            <div className="section-label">Dashboard</div>
-            <h2 className="section-title">Inspect a Sharing Session</h2>
-            <p className="section-sub">Enter a sharing ID to view session metadata (domain, expiry) or revoke it immediately.</p>
-
-            <div className="inspector-box">
-              <div className="search-bar-wrap">
-                <div className="search-bar">
-                  <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                  <input
-                    type="text"
-                    value={sessionId}
-                    onChange={(e) => setSessionId(e.target.value)}
-                    placeholder="Enter Sharing ID (UUID format)…"
-                  />
-                  <button onClick={handleLookup} className="btn-lookup" disabled={loading}>
-                    <span>{loading ? "Loading..." : "Inspect"}</span>
-                  </button>
-                </div>
-              </div>
-
-              {error && (
-                <div className="session-error">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                  <span>{error}</span>
-                </div>
-              )}
-
-              {result && (
-                <div className="session-result">
-                  <div className="result-header">
-                    <div className="result-title">
-                      <h3>Session Metadata</h3>
-                      <span className="result-id">{result.id}</span>
-                    </div>
-                    <button onClick={() => setRevokeDialogOpen(true)} className="btn-danger btn-sm">Revoke Now</button>
-                  </div>
-                  <div className="result-details">
-                    <div className="detail-item">
-                      <span className="detail-label">Target Domain</span>
-                      <span className="detail-value highlight">{result.domain}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Expires At</span>
-                      <span className="detail-value">
-                        {new Date(result.expires_at).toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Payload Size</span>
-                      <span className="detail-value">{Math.round((result.ciphertext_length || 0) / 1024)} KB</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
       </main>
 
       <footer className="footer">

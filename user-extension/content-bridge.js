@@ -4,6 +4,8 @@ const PORTAL_ORIGINS = [
   "http://localhost:8000",
   "http://127.0.0.1:8000",
   "https://localhost:8000",
+  "http://localhost:5173",
+  "http://localhost:3000"
 ];
 
 function isAllowedOrigin(origin) {
@@ -39,6 +41,10 @@ window.addEventListener("message", (event) => {
 
   if (type === "INJECT_SESSION") {
     chrome.runtime.sendMessage(event.data, (response) => {
+      if (chrome.runtime.lastError) {
+        window.postMessage({ type: "INJECT_RESPONSE", success: false, error: chrome.runtime.lastError.message }, event.origin);
+        return;
+      }
       window.postMessage(
         { type: "INJECT_RESPONSE", ...(response || {}) },
         event.origin

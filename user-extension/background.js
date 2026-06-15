@@ -104,7 +104,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === "INJECT_SESSION") {
     const tabId = sender.tab?.id;
-    handleInjectSession(message, tabId).then(sendResponse);
+    handleInjectSession(message, tabId)
+      .then(sendResponse)
+      .catch(err => sendResponse({ success: false, error: err?.message || String(err) }));
     return true;
   }
 
@@ -132,7 +134,9 @@ chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => 
     return false;
   }
   if (message.type === "INJECT_SESSION") {
-    handleInjectSession(message, null).then(sendResponse);
+    handleInjectSession(message, null)
+      .then(sendResponse)
+      .catch(err => sendResponse({ success: false, error: err?.message || String(err) }));
     return true;
   }
   return false;

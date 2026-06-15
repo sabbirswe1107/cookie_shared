@@ -352,6 +352,23 @@ def admin_create_user(
     return user
 
 
+@app.put("/api/v1/admin/users/{user_id}/password", status_code=200)
+def admin_update_user_password(
+    user_id: str,
+    payload: schemas.UserPasswordUpdate,
+    admin: models.User = Depends(auth.get_current_admin),
+    db: Session = Depends(get_db),
+):
+    if not crud.update_user_password(db, user_id, auth.hash_password(payload.new_password)):
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    # Note: We cannot easily change a user's Supabase Auth password from the backend 
+    # without the Service Role Key. If Supabase is used, they would need to reset it via Supabase directly 
+    # or we'd need to add admin auth methods here using a Service Role Key.
+    
+    return {"message": "Password updated successfully"}
+
+
 @app.post("/api/v1/admin/users/{user_id}/subscription", status_code=201)
 def admin_grant_subscription(
     user_id: str,
@@ -369,7 +386,7 @@ def admin_grant_subscription(
 
 @app.get("/api/v1/user/services", response_model=List[schemas.ServiceResponse])
 def user_list_services(
-    user: models.User = Depends(auth.get_current_subscribed_user),
+    user: models.User = Depends(auth.get_current_user),
     db: Session = Depends(get_db),
 ):
     services = crud.list_services(db, active_only=True)
@@ -381,7 +398,7 @@ def user_fetch_session(
     service_id: str,
     server_id: str,
     request: Request,
-    user: models.User = Depends(auth.get_current_subscribed_user),
+    user: models.User = Depends(auth.get_current_user),
     db: Session = Depends(get_db),
 ):
     svc = crud.get_service(db, service_id)
