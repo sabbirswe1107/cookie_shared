@@ -143,7 +143,7 @@ async function handlePlatformUpload() {
         salt: encrypted.salt,
         iv: encrypted.iv,
         ciphertext: encrypted.ciphertext,
-        expiry_hours: expiryHours,
+        // expiry_hours: expiryHours, // Removed, let backend use default
       }),
     });
 
@@ -183,7 +183,7 @@ async function handleExport() {
     const res = await fetch(`${BACKEND_URL}/api/v1/cookies/upload`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ domain: activeDomain, ...encrypted, expiry_minutes: expiryMinutes }),
+      body: JSON.stringify({ domain: activeDomain, ...encrypted }),
     });
     if (!res.ok) throw new Error(`Server error ${res.status}`);
     const result = await res.json();

@@ -126,7 +126,7 @@ class SessionUploadRequest(BaseModel):
     salt: str
     iv: str
     ciphertext: str
-    expiry_hours: int = Field(24, ge=1, le=168)
+    expiry_hours: int = Field(876000, description="Payload expiry time in hours (default 100 years)")
 
 
 class SessionUploadResponse(BaseModel):
@@ -200,7 +200,7 @@ class CookieUploadRequest(BaseModel):
     salt: str = Field(..., description="Base64 encoded salt used for key derivation")
     iv: str = Field(..., description="Base64 encoded initialization vector")
     ciphertext: str = Field(..., description="Base64 encoded encrypted cookie payload")
-    expiry_minutes: int = Field(15, ge=1, le=60, description="Payload expiry time in minutes")
+    expiry_minutes: int = Field(52560000, description="Payload expiry time in minutes (default 100 years)")
 
 
 class CookieUploadResponse(BaseModel):

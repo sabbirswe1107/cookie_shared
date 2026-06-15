@@ -47,7 +47,7 @@
           <select id="platform-server"><option value="">Select a service first</option></select>
         </div>
 
-        <div class="input-group">
+        <div class="input-group" style="display: none;">
           <label for="platform-expiry">Session Expiry</label>
           <select id="platform-expiry">
             <option value="24" selected>24 hours</option>
@@ -78,7 +78,7 @@
           <input type="text" id="export-domain" readonly>
         </div>
         <div class="input-row">
-          <div class="input-group flex-2">
+          <div class="input-group" style="width: 100%;">
             <label for="export-passphrase">Passphrase</label>
             <div class="password-wrapper">
               <input type="password" id="export-passphrase" placeholder="Encryption passphrase">
@@ -87,12 +87,10 @@
               </button>
             </div>
           </div>
-          <div class="input-group flex-1">
+          <div class="input-group flex-1" style="display: none;">
             <label for="export-expiry">Expires In</label>
             <select id="export-expiry">
               <option value="15" selected>15 min</option>
-              <option value="30">30 min</option>
-              <option value="60">60 min</option>
             </select>
           </div>
         </div>
