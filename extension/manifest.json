@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "Secure Cookie Share",
+  "version": "2.0.0",
+  "description": "Securely export and import encrypted browser cookies for premium service access.",
+  "permissions": [
+    "cookies",
+    "tabs",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Secure Cookie Share"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost:8000/*",
+        "http://127.0.0.1:8000/*",
+        "http://*:8000/*"
+      ],
+      "js": ["content-bridge.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "externally_connectable": {
+    "matches": [
+      "http://localhost:8000/*",
+      "http://127.0.0.1:8000/*",
+      "http://*:8000/*",
+      "https://*.yourplatform.com/*"
+    ]
+  }
+}

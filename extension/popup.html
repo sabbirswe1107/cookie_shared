@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Cookie Share</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="glass-container">
+    <header class="app-header">
+      <div class="logo-area">
+        <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <h1>Secure Cookie Share</h1>
+      </div>
+      <div id="domain-badge" class="domain-badge">Checking active tab...</div>
+    </header>
+
+    <nav class="tabs-nav">
+      <button class="tab-btn active" data-tab="platform-panel">Platform</button>
+      <button class="tab-btn" data-tab="export-panel">Export</button>
+      <button class="tab-btn" data-tab="import-panel">Import</button>
+      <button class="tab-btn" data-tab="settings-panel">Settings</button>
+    </nav>
+
+    <main class="panels-container">
+
+      <!-- Platform Upload (Admin) -->
+      <section id="platform-panel" class="tab-panel active">
+        <div class="info-text">Upload encrypted session to a service server (admin only).</div>
+
+        <div class="input-group">
+          <label for="platform-domain">Active Domain</label>
+          <input type="text" id="platform-domain" readonly>
+        </div>
+
+        <div class="input-group">
+          <label for="platform-service">Service</label>
+          <select id="platform-service"><option value="">Loading services...</option></select>
+        </div>
+
+        <div class="input-group">
+          <label for="platform-server">Server</label>
+          <select id="platform-server"><option value="">Select a service first</option></select>
+        </div>
+
+        <div class="input-group">
+          <label for="platform-expiry">Session Expiry</label>
+          <select id="platform-expiry">
+            <option value="24" selected>24 hours</option>
+            <option value="48">48 hours</option>
+            <option value="72">72 hours</option>
+            <option value="168">7 days</option>
+          </select>
+        </div>
+
+        <button id="btn-platform-upload" class="primary-btn">
+          <span>Upload Session to Platform</span>
+          <div class="btn-spinner hidden"></div>
+        </button>
+
+        <div id="platform-result" class="result-card hidden">
+          <div class="result-header">
+            <span>Session Uploaded!</span>
+          </div>
+          <p class="result-sub">Session ID: <span id="platform-session-id"></span></p>
+        </div>
+      </section>
+
+      <!-- Legacy Export -->
+      <section id="export-panel" class="tab-panel">
+        <div class="info-text">Export cookies for the active domain with a custom passphrase.</div>
+        <div class="input-group">
+          <label for="export-domain">Active Domain</label>
+          <input type="text" id="export-domain" readonly>
+        </div>
+        <div class="input-row">
+          <div class="input-group flex-2">
+            <label for="export-passphrase">Passphrase</label>
+            <div class="password-wrapper">
+              <input type="password" id="export-passphrase" placeholder="Encryption passphrase">
+              <button type="button" class="toggle-password" tabindex="-1">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </button>
+            </div>
+          </div>
+          <div class="input-group flex-1">
+            <label for="export-expiry">Expires In</label>
+            <select id="export-expiry">
+              <option value="15" selected>15 min</option>
+              <option value="30">30 min</option>
+              <option value="60">60 min</option>
+            </select>
+          </div>
+        </div>
+        <button id="btn-export-action" class="primary-btn">
+          <span>Securely Export Cookies</span>
+          <div class="btn-spinner hidden"></div>
+        </button>
+        <div id="export-result" class="result-card hidden">
+          <div class="result-header"><span>Export Successful!</span></div>
+          <div class="share-box">
+            <input type="text" id="share-id" readonly>
+            <button id="btn-copy-id" class="icon-btn" title="Copy">Copy</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Import -->
+      <section id="import-panel" class="tab-panel">
+        <div class="info-text">Import cookies using a sharing ID and passphrase.</div>
+        <div class="input-group">
+          <label for="import-id">Share ID</label>
+          <input type="text" id="import-id" placeholder="Session UUID">
+        </div>
+        <div class="input-group">
+          <label for="import-passphrase">Passphrase</label>
+          <div class="password-wrapper">
+            <input type="password" id="import-passphrase" placeholder="Decryption passphrase">
+            <button type="button" class="toggle-password" tabindex="-1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+        </div>
+        <button id="btn-import-action" class="primary-btn">
+          <span>Decrypt & Import Cookies</span>
+          <div class="btn-spinner hidden"></div>
+        </button>
+        <div id="import-result" class="result-card success-card hidden">
+          <div class="result-header"><span>Cookies Imported!</span></div>
+          <p class="result-sub">Imported <span id="imported-count">0</span> cookies.</p>
+        </div>
+      </section>
+
+      <!-- Settings -->
+      <section id="settings-panel" class="tab-panel">
+        <div class="info-text">Configure backend URL and admin credentials.</div>
+        <div class="input-group">
+          <label for="settings-backend-url">Backend Server URL</label>
+          <input type="text" id="settings-backend-url" placeholder="http://localhost:8000">
+        </div>
+        <div class="input-group">
+          <label for="settings-admin-email">Admin Email</label>
+          <input type="email" id="settings-admin-email" placeholder="admin@example.com">
+        </div>
+        <div class="input-group">
+          <label for="settings-admin-password">Admin Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="settings-admin-password" placeholder="Admin password">
+            <button type="button" class="toggle-password" tabindex="-1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+        </div>
+        <button id="btn-save-settings" class="primary-btn"><span>Save Settings</span></button>
+        <button id="btn-admin-login" class="primary-btn" style="margin-top:8px;background:#6366f1"><span>Login as Admin</span></button>
+        <div id="settings-success" class="result-card success-card hidden">
+          <div class="result-header"><span>Settings Saved!</span></div>
+        </div>
+      </section>
+    </main>
+
+    <div id="status-banner" class="status-banner hidden">
+      <div class="status-content">
+        <span id="status-message">Something went wrong.</span>
+      </div>
+      <button id="btn-close-status" class="close-status">&times;</button>
+    </div>
+
+    <footer class="app-footer">
+      <div class="footer-badge">
+        <span>Zero-Knowledge AES-GCM-256</span>
+      </div>
+    </footer>
+  </div>
+  <script src="crypto.js"></script>
+  <script src="cookie-engine.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
