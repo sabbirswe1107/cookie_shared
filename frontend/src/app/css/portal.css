@@ -1,0 +1,7 @@
+.auth-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+.auth-tab {
+  flex: 1; padding: 8px; border: 1px solid var(--border); background: var(--surface2);
+  color: var(--text-muted); border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500;
+}
+.auth-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.success-msg { color: var(--success); font-size: 13px; margin-top: 12px; }

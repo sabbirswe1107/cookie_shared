@@ -1,0 +1,12 @@
+.service-block {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px; margin-bottom: 16px;
+}
+.service-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.service-block-title { font-size: 16px; font-weight: 600; }
+.server-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.server-chip {
+  font-size: 12px; padding: 4px 10px; border-radius: 16px;
+  background: var(--surface2); border: 1px solid var(--border);
+}
+.server-chip.online { border-color: var(--success); color: var(--success); }
